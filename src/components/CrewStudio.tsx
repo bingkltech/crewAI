@@ -46,6 +46,7 @@ import { AutonomousPRReviewModule } from './AutonomousPRReviewModule';
 import { PredictiveSchedulerModule } from './PredictiveSchedulerModule';
 import { PredictiveInsightsDashboard } from './PredictiveInsightsDashboard';
 import { RepositoryHealthWidget } from './RepositoryHealthWidget';
+import { WebhookSettingsPanel } from './WebhookSettingsPanel';
 import { RemoteControlModule } from './RemoteControlModule';
 import { 
   ProviderStatus, 
@@ -2781,6 +2782,7 @@ if __name__ == "__main__":
       <RemoteControlModule
         onNotify={showNotification}
       />
+      <WebhookSettingsPanel onNotify={showNotification} />
 
       {/* Main Grid: Builder Left & Simulator/Code Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

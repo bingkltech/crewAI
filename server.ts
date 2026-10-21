@@ -790,6 +790,39 @@ interface InterceptedJulesPR {
   suggestedRevisions: AutomatedPrRevision[];
 }
 
+const webhookSettings = {
+  url: '',
+  type: 'slack' as 'slack' | 'discord'
+};
+
+const triggerWebhook = async (message: string) => {
+  if (!webhookSettings.url) return;
+  try {
+    const payload = webhookSettings.type === 'slack' 
+      ? { text: message } 
+      : { content: message };
+      
+    await fetch(webhookSettings.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.error('Failed to send webhook notification:', err);
+  }
+};
+
+app.get('/api/webhooks', (req, res) => {
+  res.json(webhookSettings);
+});
+
+app.post('/api/webhooks', (req, res) => {
+  const { url, type } = req.body;
+  webhookSettings.url = url;
+  webhookSettings.type = type;
+  res.json({ status: 'ok' });
+});
+
 const julesPrReviewState: {
   autoInterceptEnabled: boolean;
   reviewerAgentName: string;
@@ -1098,6 +1131,8 @@ app.post('/api/jules/pr-reviews/:prNumber/approve', (req, res) => {
   pr.status = 'approved_merged';
   pr.summaryVerdict = `Approved & merged into ${pr.repo} after secondary review verification (Quality: 99%, Security: 100%).`;
   julesPrReviewState.totalApproved += 1;
+
+  triggerWebhook(`🚀 PR #${prNum} "${pr.title}" has been approved and merged into ${pr.repo}!`);
 
   res.json({
     ...julesPrReviewState,
